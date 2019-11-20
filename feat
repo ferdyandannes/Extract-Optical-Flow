@@ -1,0 +1,47 @@
+clc;
+clear;
+
+main_dir = 'U:\a\feat_box';
+
+src = dir(main_dir)
+src = src(3:end)
+
+for t = 1:length(src)
+    fname = src(t).name;
+    mat_dir = fullfile(main_dir, fname)
+    
+    load(mat_dir);
+    % in
+    bb = bbox;
+    fitur = features;
+    
+    % out
+    bbout = zeros(size(bb));
+    fiturout = zeros(size(fitur));
+    
+    %var1 = getfield(load(mat_dir), 'bbox');
+    %length(bbox)
+    
+    for j = 1 : size(bb,1)
+        bbx = bb(j,:,:); % tiap frame
+        bbx = squeeze(bbx);
+        x1 = bbx(:,1);
+        y1 = bbx(:,2);
+        x2 = bbx(:,3);
+        y2 = bbx(:,4);
+        xc = x1 + 0.5*(x1+x2);
+        yc = y1 + 0.5*(y1+y2);
+        [a,b] = sort(xc, 'ascend');
+        bbout(j,:,:) = bb(j,b,:);
+        fiturout(j,:,:) = fitur(j,b,:);
+    end
+    bbox = bbout
+    features = fiturout
+    
+    pathname = fileparts('U:\a\feat_box_new');
+    matfile = fullfile(pathname, fname);
+    save(matfile,'bbox','features','-v6')
+    
+    %fname = sprintf(fname,bbox,features); 
+    %save(fname)
+end
